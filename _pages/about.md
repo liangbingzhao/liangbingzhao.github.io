@@ -9,18 +9,22 @@ profile:
   image: prof_pic.jpg
   image_circular: false # crops the image to make it circular
   more_info: >
-    <p>555 your office number</p>
-    <p>123 your address street</p>
-    <p>Your City, State 12345</p>
+    <p>B.S. Student</p>
+    <p>Beihang University</p>
+    <p>zhaolbben@gmail.com</p>
 
 news: true  # includes a list of news items
-latest_posts: true  # includes a list of the newest posts
+latest_posts: false  # includes a list of the newest posts
 selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
 ---
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+Hi, I am Liangbing Zhao. You can also call me Liam. I am currently a BSc student at Beihang Univerisity, majoring in Computer Science and Technology. I am currently working with Prof. [Mohamed Elhoseiny](https://www.mohamed-elhoseiny.com/) at [KAUST](https://www.kaust.edu.sa/en/). During my undergraduate years at BUAA, I was supervised by Prof. [Si Liu](https://colalab.net/). I was also a research intern at Meitu Inc., where I worked on video diffusion models with Dr. [Xuecheng Nie](https://niexc.github.io/).
 
-Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
+I am currently looking for a PhD position starting from Fall 2024! Please feel free to contact me if you are interested.
 
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](https://fontawesome.com/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
+Research Interests
+======
+My research interests lie primarily in **developing more efficient, robust, and adaptable deep learning algorithms to conquer generation problems.**
+- Design the next generation of generative models based on DDPM, GAN, etc.
+- Devise algorithms for 2D/3D synthesis and solve 2D/3D generation editing problems.
