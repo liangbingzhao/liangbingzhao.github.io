@@ -47,23 +47,13 @@
 consistency while ensuring that the new object is coherent with the sequence’s motion.
         - Accepted by Electronics.
 
-- title: Open Source Projects
-  type: time_table
-  contents:
-    - title: <a href="https://github.com/alshedivat/al-folio">al-folio</a>
-      year: 2015-now
-      description: A beautiful, simple, clean, and responsive Jekyll theme for academics.
-
 - title: Honors and Awards
   type: time_table
   contents:
-    - year: 1921
+    - year: 2020
       items: 
-        - Nobel Prize in Physics 
-        - Matteucci Medal
-    - year: 2029
-      items: 
-        - Max Planck Medal
+        - Special Prize for Learning Merit Scholarship
+        - Beihang University Excellent Student
 
 - title: Academic Interests
   type: nested_list
