@@ -30,7 +30,7 @@
 - title: Research Experience
   type: time_table
   contents:
-    - title: ToddlerDiffusion: Flash Interpretable Controllable Diffusion Model
+    - title: ToddlerDiffusion——Flash Interpretable Controllable Diffusion Model
       institution: KAUST
       year: 2023 - 2023
       description:
@@ -58,16 +58,9 @@ consistency while ensuring that the new object is coherent with the sequence’s
 - title: Academic Interests
   type: nested_list
   contents:
-    - title: Topic 1.
+    - title: Generative Models.
       items: 
-        - Description 1.
-        - Description 2.
-    - title: Topic 2.
-      items:
-        - Description 1.
-        - Description 2.
+        - Design the next generation of generative models based on DDPM, GAN, etc.
+        - Devise algorithms for 2D/3D synthesis and solve 2D/3D generation editing problems.
 
-- title: Other Interests
-  type: list
-  contents:
-    - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
+
