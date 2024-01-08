@@ -43,8 +43,7 @@
       year: 2022-2023
       description:
         - Introduced a novel image-driven video editing task to generate customized video from an input image.
-        - Proposed a LIVE(Latent prompt-based Image-driven Video Editing)framework to deal with customized video editing task. Devised a training and inference pipeline specific to the video editing task maintaining cross-frame
-consistency while ensuring that the new object is coherent with the sequence’s motion.
+        - Proposed a LIVE(Latent prompt-based Image-driven Video Editing)framework to deal with customized video editing task. Devised a training and inference pipeline specific to the video editing task maintaining cross-frame consistency while ensuring that the new object is coherent with the sequence’s motion.
         - Accepted by Electronics.
 
 - title: Honors and Awards
