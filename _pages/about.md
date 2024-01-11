@@ -28,5 +28,3 @@ Research Interests
 My research interests lie primarily in **developing more efficient, robust, and adaptable deep learning algorithms to conquer generation problems.**
 - Design the next generation of generative models based on DDPM, GAN, etc.
 - Devise algorithms for 2D/3D synthesis and solve 2D/3D generation editing problems.
-
-<script type="text/javascript" id="clstr_globe" src="//clustrmaps.com/globe.js?d=uIv2CeBFgI1aInuUTnqtwX9Izba13zLzr0UMa4LAJyI"></script>
