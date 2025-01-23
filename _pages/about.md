@@ -19,9 +19,8 @@ selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
 ---
 
-Hi, I am Liangbing Zhao. You can also call me Liam. I am currently a BSc student at Beihang Univerisity, majoring in Computer Science and Technology. I am currently working with Prof. [Mohamed Elhoseiny](https://www.mohamed-elhoseiny.com/) at [KAUST](https://www.kaust.edu.sa/en/). During my undergraduate years at BUAA, I was supervised by Prof. [Si Liu](https://colalab.net/). I was also a research intern at Meitu Inc., where I worked on video diffusion models with Dr. [Xuecheng Nie](https://niexc.github.io/).
+Hi, I am Liangbing Zhao. You can also call me Liam. I am currently a MS/PhD student at King Abdullah University of Science and Technology (KAUST), under the guidance of my advisor, Prof. [Mohamed Elhoseiny](https://www.mohamed-elhoseiny.com/). During my undergraduate years, I was supervised by Prof. [Si Liu](https://colalab.net/). I was also a research intern at Meitu Inc., where I worked on video diffusion models with Dr. [Xuecheng Nie](https://niexc.github.io/).
 
-I am currently looking for a PhD position starting from Fall 2024! Please feel free to contact me if you are interested.
 
 Research Interests
 ======
