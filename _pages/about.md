@@ -10,7 +10,7 @@ profile:
   image_circular: false # crops the image to make it circular
   more_info: >
     <p>MS/PhD Student</p>
-    <p>KAUST</p>
+    <p>King Abdullah University of Science and Technology</p>
     <p>zhaolbben@gmail.com</p>
 
 news: true  # includes a list of news items
