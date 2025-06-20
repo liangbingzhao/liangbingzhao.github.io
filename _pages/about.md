@@ -9,8 +9,8 @@ profile:
   image: prof_pic.jpg
   image_circular: false # crops the image to make it circular
   more_info: >
-    <p>B.S. Student</p>
-    <p>Beihang University</p>
+    <p>MS/PhD Student</p>
+    <p>KAUST</p>
     <p>zhaolbben@gmail.com</p>
 
 news: true  # includes a list of news items
