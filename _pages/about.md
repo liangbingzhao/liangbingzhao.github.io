@@ -24,6 +24,7 @@ Hi, I am Liangbing Zhao. You can also call me Liam. I am currently a MS/PhD stud
 
 Research Interests
 ======
-My research interests lie primarily in **developing more efficient, robust, and adaptable deep learning algorithms to conquer generation problems.**
-- Design the next generation of generative models based on DDPM, GAN, etc.
-- Devise algorithms for 2D/3D synthesis and solve 2D/3D generation editing problems.
+
+- **Generative Models**: Advancing and applying generative models, such as diffusion models, flow matching, and autoregressive models, with a focus on improving their architectures and exploring innovative applications.
+- **Unified Models**: Developing models that integrate generative and understanding tasks, with an emphasis on leveraging understanding capabilities to enhance generative performance.
+
