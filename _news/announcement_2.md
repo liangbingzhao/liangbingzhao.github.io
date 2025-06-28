@@ -1,9 +1,8 @@
 ---
 layout: post
-title: A long announcement with details
-date: 2023-12-19 
-inline: True
+date: 2025-1-22 
+inline: true
 related_posts: false
 ---
 
-One paper is accepted by Electronics!
+One paper is accepted by ICLR2025!
