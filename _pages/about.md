@@ -28,3 +28,6 @@ Research Interests
 - **Generative Models**: Advancing and applying generative models, such as diffusion models, flow matching, and autoregressive models, with a focus on improving their architectures and exploring innovative applications.
 - **Unified Models**: Developing models that integrate generative and understanding tasks, with an emphasis on leveraging understanding capabilities to enhance generative performance.
 
+<p style="color:red; font-weight:bold;">
+🔥 I am actively looking for a research internship in Summer 2026. Please feel free to reach out if you are hiring! 🔥
+</p>
