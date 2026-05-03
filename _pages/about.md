@@ -9,7 +9,7 @@ profile:
   image: prof_pic.jpg
   image_circular: false # crops the image to make it circular
   more_info: >
-    <p>MS/PhD Student</p>
+    <p>PhD Student</p>
     <p>King Abdullah University of Science and Technology</p>
     <p>zhaolbben@gmail.com</p>
 
