@@ -21,7 +21,7 @@ social: true  # includes social icons at the bottom of the page
 
 Hi, I am **Liangbing Zhao**. You can also call me Liam. I am currently a **first-year PhD student** at King Abdullah University of Science and Technology (KAUST), where I also earned my Master's degree. I am privileged to be advised by Prof. [Mohamed Elhoseiny](https://www.mohamed-elhoseiny.com/).
 
-Previously, I completed my undergraduate studies under the supervision of Prof. [Si Liu](https://colalab.net/). I also spent time as a research intern at Meitu Inc. with Dr. [Xuecheng Nie](https://niexc.github.io/). For more details, please refer to my [CV](https://liangbingzhao.github.io/assets/pdf/visioncair_cv.pdf)
+Previously, I completed my undergraduate studies under the supervision of Prof. [Si Liu](https://colalab.net/). I also spent time as a research intern at Meitu Inc. with Dr. [Xuecheng Nie](https://niexc.github.io/). For more details, please refer to my [CV](https://liangbingzhao.github.io/assets/pdf/visioncair_cv.pdf).
 
 
 Research Interests
