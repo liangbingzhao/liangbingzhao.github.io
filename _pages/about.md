@@ -31,5 +31,5 @@ Research Interests
 - **Unified Models**: Developing models that bridge generative and understanding tasks, with an emphasis on leveraging understanding capabilities to enhance generative performance.
 
 <p style="color:red; font-weight:bold;">
-🔥 I am actively looking for a research internship in Summer 2026. Please feel free to reach out if you are hiring! 🔥
+🔥 I am actively looking for a research internship in Summer 2027. Please feel free to reach out if you are hiring! 🔥
 </p>
