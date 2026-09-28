@@ -1,0 +1,88 @@
+---
+// Dev-only switcher for comparing colour schemes on the real page (never shipped in builds).
+const palettes = [
+  { id: 'spring', label: '春日软陶', hint: 'Spring clay' },
+  { id: 'klein', label: '克莱因蓝', hint: 'Klein stage' },
+  { id: 'velvet', label: '中古丝绒', hint: 'Mid-century velvet' },
+];
+---
+
+<div class="palette-lab" role="group" aria-label="Colour palette (dev only)">
+  <span class="palette-lab__label">配色</span>
+  {
+    palettes.map((p) => (
+      <button type="button" data-set-palette={p.id} title={p.hint}>
+        {p.label}
+      </button>
+    ))
+  }
+  <button type="button" data-lab-theme title="Toggle light / dark">◐</button>
+</div>
+
+<style>
+  .palette-lab {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
+    box-shadow: var(--shadow-lg);
+    font: 500 13px/1 var(--font-sans);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .palette-lab__label {
+    padding: 0 8px 0 10px;
+    color: var(--text-3);
+  }
+
+  .palette-lab button {
+    height: 30px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .palette-lab button:hover {
+    color: var(--text);
+    background: var(--accent-soft);
+  }
+
+  .palette-lab button[aria-pressed='true'] {
+    background: var(--text);
+    color: var(--bg);
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-palette]');
+  const sync = () =>
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setPalette === root.dataset.palette)));
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      root.dataset.palette = b.dataset.setPalette;
+      try {
+        localStorage.setItem('palette-lab', b.dataset.setPalette ?? '');
+      } catch {
+        /* ignore */
+      }
+      sync();
+    }),
+  );
+  document.querySelector('[data-lab-theme]')?.addEventListener('click', () => {
+    document.querySelector<HTMLButtonElement>('[data-theme-toggle]')?.click();
+  });
+  sync();
+</script>

@@ -1,6 +1,9 @@
 /* ---------------------------------------------------------------------------
    Design tokens
-   Light = warm "clay" daylight, dark = night sky for the particles.
+   Layout/type tokens, then one colour block per palette × theme.
+   Palettes: spring (default), klein, velvet — see src/scripts/hero/palettes.ts.
+   Every palette block sets the same colour variables in light and dark, so a
+   palette's light values never leak into dark mode.
 --------------------------------------------------------------------------- */
 :root {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -13,75 +16,165 @@
   --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
   --nav-h: 64px;
 
-  --bg: #f4f1ea;
-  --bg-elev: #fffdf9;
-  --bg-soft: #ebe6dc;
-  --text: #16161b;
-  --text-2: #44444e;
-  --text-3: #74747e;
-  --line: rgba(22, 22, 27, 0.09);
-  --line-strong: rgba(22, 22, 27, 0.18);
-  --accent: #5b3fe0;
-  --accent-2: #ec5a37;
-  --accent-3: #0f9f8f;
-  --accent-soft: rgba(91, 63, 224, 0.09);
-  --grad: linear-gradient(100deg, #1f2127 0%, #3d3a8f 55%, #5b3fe0 100%);
-  --shadow: 0 1px 2px rgba(30, 25, 15, 0.05), 0 12px 32px -14px rgba(30, 25, 15, 0.22);
-  --shadow-lg: 0 2px 4px rgba(30, 25, 15, 0.05), 0 30px 60px -24px rgba(30, 25, 15, 0.32);
-  --nav-bg: rgba(244, 241, 234, 0.74);
+  --shadow: 0 1px 2px rgba(20, 22, 30, 0.05), 0 12px 32px -14px rgba(20, 22, 30, 0.2);
+  --shadow-lg: 0 2px 4px rgba(20, 22, 30, 0.05), 0 30px 60px -24px rgba(20, 22, 30, 0.28);
   --paper: #ffffff;
-  --glow-1: rgba(255, 170, 120, 0.16);
-  --glow-2: rgba(98, 70, 234, 0.12);
+  --hero-bg:
+    radial-gradient(55% 45% at 50% 40%, var(--glow-1), transparent 70%),
+    radial-gradient(35% 35% at 85% 15%, var(--glow-2), transparent 70%),
+    radial-gradient(30% 30% at 10% 70%, var(--glow-2), transparent 70%);
   color-scheme: light;
+
+  /* spring · light */
+  --bg: #f6f6f3;
+  --bg-elev: #ffffff;
+  --bg-soft: #ecece7;
+  --text: #17181d;
+  --text-2: #474852;
+  --text-3: #787984;
+  --line: rgba(23, 24, 29, 0.09);
+  --line-strong: rgba(23, 24, 29, 0.17);
+  --accent: #4b63e6;
+  --accent-2: #ff6f4f;
+  --accent-3: #1fa88c;
+  --accent-soft: rgba(75, 99, 230, 0.1);
+  --grad: linear-gradient(100deg, #4b63e6 0%, #a77bea 50%, #ff7a59 100%);
+  --nav-bg: rgba(246, 246, 243, 0.76);
+  --glow-1: rgba(108, 140, 240, 0.16);
+  --glow-2: rgba(76, 195, 168, 0.13);
 }
 
 :root[data-theme='dark'] {
-  --bg: #181a1f;
-  --bg-elev: #202329;
-  --bg-soft: #272a31;
-  --text: #edeef3;
-  --text-2: #b8bcc8;
-  --text-3: #868b98;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.16);
-  --accent: #a595ff;
-  --accent-2: #ff8a6b;
-  --accent-3: #4fd1c5;
-  --accent-soft: rgba(165, 149, 255, 0.13);
-  --grad: linear-gradient(100deg, #f4f5f8 0%, #c9c2ff 55%, #a595ff 100%);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.3), 0 30px 60px -20px rgba(0, 0, 0, 0.65);
-  --nav-bg: rgba(24, 26, 31, 0.76);
   --paper: #f7f7f5;
-  --glow-1: rgba(165, 149, 255, 0.1);
-  --glow-2: rgba(255, 255, 255, 0.035);
   color-scheme: dark;
+
+  /* spring · dark */
+  --bg: #1a1c22;
+  --bg-elev: #22252d;
+  --bg-soft: #2a2e37;
+  --text: #eef0f5;
+  --text-2: #b9becb;
+  --text-3: #878c9a;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --accent: #8ea2ff;
+  --accent-2: #ff8f73;
+  --accent-3: #5fd6bc;
+  --accent-soft: rgba(142, 162, 255, 0.14);
+  --grad: linear-gradient(100deg, #8ea2ff 0%, #c6a8ff 50%, #ff9f82 100%);
+  --nav-bg: rgba(26, 28, 34, 0.76);
+  --glow-1: rgba(108, 140, 240, 0.14);
+  --glow-2: rgba(76, 195, 168, 0.07);
 }
 
-/* Without JS the page follows the system theme. */
+/* Without JS the page follows the system theme (default palette). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg: #181a1f;
-    --bg-elev: #202329;
-    --bg-soft: #272a31;
-    --text: #edeef3;
-    --text-2: #b8bcc8;
-    --text-3: #868b98;
-    --line: rgba(255, 255, 255, 0.08);
-    --line-strong: rgba(255, 255, 255, 0.16);
-    --accent: #a595ff;
-    --accent-2: #ff8a6b;
-    --accent-3: #4fd1c5;
-    --accent-soft: rgba(165, 149, 255, 0.13);
-    --grad: linear-gradient(100deg, #f4f5f8 0%, #c9c2ff 55%, #a595ff 100%);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
     --shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.3), 0 30px 60px -20px rgba(0, 0, 0, 0.65);
-    --nav-bg: rgba(24, 26, 31, 0.76);
     --paper: #f7f7f5;
-    --glow-1: rgba(165, 149, 255, 0.1);
-    --glow-2: rgba(255, 255, 255, 0.035);
     color-scheme: dark;
+    --bg: #1a1c22;
+    --bg-elev: #22252d;
+    --bg-soft: #2a2e37;
+    --text: #eef0f5;
+    --text-2: #b9becb;
+    --text-3: #878c9a;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --accent: #8ea2ff;
+    --accent-2: #ff8f73;
+    --accent-3: #5fd6bc;
+    --accent-soft: rgba(142, 162, 255, 0.14);
+    --grad: linear-gradient(100deg, #8ea2ff 0%, #c6a8ff 50%, #ff9f82 100%);
+    --nav-bg: rgba(26, 28, 34, 0.76);
+    --glow-1: rgba(108, 140, 240, 0.14);
+    --glow-2: rgba(76, 195, 168, 0.07);
   }
+}
+
+/* klein · light — pastel pearls on an electric-blue stage */
+:root[data-palette='klein'] {
+  --bg: #f4f5f8;
+  --bg-elev: #ffffff;
+  --bg-soft: #e9ebf2;
+  --text: #12141b;
+  --text-2: #444857;
+  --text-3: #767a89;
+  --line: rgba(18, 20, 27, 0.09);
+  --line-strong: rgba(18, 20, 27, 0.17);
+  --accent: #2340ff;
+  --accent-2: #ff6b4a;
+  --accent-3: #12b886;
+  --accent-soft: rgba(35, 64, 255, 0.08);
+  --grad: linear-gradient(100deg, #2340ff 0%, #6a7bff 55%, #b5a4ff 100%);
+  --nav-bg: rgba(244, 245, 248, 0.78);
+  --glow-1: rgba(35, 64, 255, 0.1);
+  --glow-2: rgba(181, 164, 255, 0.12);
+  --hero-bg: radial-gradient(90% 85% at 50% 28%, #3b57ff 0%, #2541f2 42%, #172bc7 100%);
+}
+
+/* klein · dark */
+:root[data-palette='klein'][data-theme='dark'] {
+  --bg: #15171d;
+  --bg-elev: #1e2129;
+  --bg-soft: #262a33;
+  --text: #eef0f6;
+  --text-2: #b7bccb;
+  --text-3: #858a9a;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --accent: #7d8cff;
+  --accent-2: #ff8a6b;
+  --accent-3: #4fd1a5;
+  --accent-soft: rgba(125, 140, 255, 0.14);
+  --grad: linear-gradient(100deg, #7d8cff 0%, #a9b4ff 50%, #d5c9ff 100%);
+  --nav-bg: rgba(21, 23, 29, 0.78);
+  --glow-1: rgba(60, 85, 255, 0.14);
+  --glow-2: rgba(181, 164, 255, 0.06);
+  --hero-bg: radial-gradient(90% 85% at 50% 28%, #2a43e6 0%, #1b30b8 45%, #0e1a78 100%);
+}
+
+/* velvet · light — mid-century plush */
+:root[data-palette='velvet'] {
+  --bg: #f4f1eb;
+  --bg-elev: #fffdf9;
+  --bg-soft: #e9e4da;
+  --text: #1d1a16;
+  --text-2: #4f4a43;
+  --text-3: #817a70;
+  --line: rgba(29, 26, 22, 0.09);
+  --line-strong: rgba(29, 26, 22, 0.18);
+  --accent: #c4532a;
+  --accent-2: #1f7a78;
+  --accent-3: #d99a1e;
+  --accent-soft: rgba(196, 83, 42, 0.1);
+  --grad: linear-gradient(100deg, #c4532a 0%, #e2a52b 50%, #1f7a78 100%);
+  --nav-bg: rgba(244, 241, 235, 0.78);
+  --glow-1: rgba(226, 165, 43, 0.12);
+  --glow-2: rgba(31, 122, 120, 0.1);
+}
+
+/* velvet · dark */
+:root[data-palette='velvet'][data-theme='dark'] {
+  --bg: #1c1b19;
+  --bg-elev: #252320;
+  --bg-soft: #2f2c28;
+  --text: #f2eee7;
+  --text-2: #c4bdb2;
+  --text-3: #918a7f;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --accent: #ee7a45;
+  --accent-2: #3fb3ae;
+  --accent-3: #f0bc45;
+  --accent-soft: rgba(238, 122, 69, 0.14);
+  --grad: linear-gradient(100deg, #ee7a45 0%, #f0bc45 50%, #3fb3ae 100%);
+  --nav-bg: rgba(28, 27, 25, 0.78);
+  --glow-1: rgba(238, 122, 69, 0.1);
+  --glow-2: rgba(63, 179, 174, 0.07);
 }
 
 /* ---------------------------------------------------------------------------
@@ -440,11 +533,37 @@ a:hover {
   position: absolute;
   inset: 0;
   z-index: -2;
-  background:
-    radial-gradient(55% 45% at 50% 40%, var(--glow-1), transparent 70%),
-    radial-gradient(35% 35% at 85% 15%, var(--glow-2), transparent 70%),
-    radial-gradient(30% 30% at 10% 70%, var(--glow-2), transparent 70%);
+  background: var(--hero-bg);
   transition: opacity 0.6s;
+}
+
+/* klein: the hero is an inset electric-blue stage, so its text flips to white. */
+:root[data-palette='klein'] .hero {
+  margin: calc(var(--nav-h) + 4px) clamp(8px, 1.4vw, 18px) 0;
+  min-height: calc(100vh - var(--nav-h) - 16px);
+  min-height: calc(100svh - var(--nav-h) - 16px);
+  border-radius: 28px;
+  --bg: #1f36e0;
+  --bg-elev: rgba(255, 255, 255, 0.1);
+  --text: #ffffff;
+  --text-2: rgba(255, 255, 255, 0.82);
+  --text-3: rgba(255, 255, 255, 0.62);
+  --line: rgba(255, 255, 255, 0.2);
+  --line-strong: rgba(255, 255, 255, 0.36);
+  --accent: #ffffff;
+  --accent-2: #ffb49c;
+  --accent-3: #9ff0d6;
+  color: var(--text);
+}
+
+:root[data-palette='klein'][data-theme='dark'] .hero {
+  --bg: #16229c;
+}
+
+@media (max-width: 560px) {
+  :root[data-palette='klein'] .hero {
+    border-radius: 20px;
+  }
 }
 
 .hero__stage {

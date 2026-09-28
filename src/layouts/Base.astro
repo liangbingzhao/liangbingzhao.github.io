@@ -5,6 +5,7 @@ import '@fontsource-variable/jetbrains-mono';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import PaletteLab from '../components/PaletteLab.astro';
 import { site } from '../site.config';
 
 interface Props {
@@ -20,7 +21,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-palette={site.palette}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -56,6 +57,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
       })();
     </script>
     {
+      import.meta.env.DEV && (
+        <script is:inline>
+          try {
+            var p = localStorage.getItem('palette-lab');
+            if (p) document.documentElement.dataset.palette = p;
+          } catch (e) {}
+        </script>
+      )
+    }
+    {
       hero && (
         <script is:inline>
           (function () {
@@ -83,6 +94,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
       <slot />
     </main>
     <Footer />
+    {import.meta.env.DEV && <PaletteLab />}
     <script>
       import '../scripts/ui';
     </script>

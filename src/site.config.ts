@@ -4,6 +4,8 @@ export const site = {
   shortName: 'Liam Zhao',
   // Words spelled out by the 3D letters in the hero (A–Z only).
   heroWords: ['LIANGBING', 'ZHAO'],
+  // Colour scheme: 'spring' | 'klein' | 'velvet' (see src/scripts/hero/palettes.ts).
+  palette: 'spring',
   // Used to highlight your name in author lists.
   self: { first: 'Liangbing', last: 'Zhao' },
   description:

@@ -11,8 +11,8 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import fontData from './font.typeface.json';
+import { DEFAULT_PALETTE, PALETTES, isPalette, type Look, type PaletteName, type ThemeName } from './palettes';
 
-type ThemeName = 'light' | 'dark';
 type Phase = 'denoise' | 'materialize' | 'solid' | 'noising';
 
 export interface HeroOptions {
@@ -27,8 +27,13 @@ interface Letter {
   mesh: THREE.Mesh<TextGeometry, THREE.MeshPhysicalMaterial>;
   body: CANNON.Body;
   home: THREE.Vector3;
+  /** Position along the name; picks the letter's colour from the palette. */
+  index: number;
   /** Small per-letter lightness offset in [-1, 1], so the letters read as hand-made. */
   shade: number;
+  /** Local vertical extent, for the in-letter gradient. */
+  yMin: number;
+  yMax: number;
 }
 
 interface Ball {
@@ -38,7 +43,7 @@ interface Ball {
 
 const SIZE = 1;
 const DEPTH = 0.44;
-const BEVEL = 0.055;
+const BEVEL = 0.065;
 const TRACKING = 0.07;
 const WORD_GAP = 0.5;
 const ROW_GAP = 2.6;
@@ -52,56 +57,7 @@ const PUSHER_RADIUS = 0.42;
 const PUSH_HEIGHT = 0.42;
 const PUSH_MAX_SPEED = 16;
 
-// Monochrome letters — ink on paper by day, pearl at night — with a faint thin-film
-// sheen on the bevels. A small share of the particles carries the site accent.
-const LOOK = {
-  light: {
-    env: 1,
-    hemi: 0.5,
-    ground: 0xd9cfbf,
-    key: 2.3,
-    rim: 0,
-    rimColor: 0xffffff,
-    shadow: 0.2,
-    letter: '#2c2e34',
-    roughness: 0.36,
-    clearcoat: 0.7,
-    coatRoughness: 0.22,
-    iridescence: 0.2,
-    letterEnv: 0.9,
-    particle: '#2b2d33',
-    accent: '#5b3fe0',
-    ball: '#fbfaf6',
-    additive: false,
-    pointSize: 0.034,
-    pusher: '#5b3fe0',
-  },
-  dark: {
-    env: 0.55,
-    hemi: 0.3,
-    ground: 0x2a2d36,
-    key: 1.6,
-    rim: 12,
-    rimColor: 0xc9ccff,
-    shadow: 0.45,
-    letter: '#e9eaf0',
-    roughness: 0.26,
-    clearcoat: 1,
-    coatRoughness: 0.15,
-    iridescence: 0.6,
-    letterEnv: 1,
-    // Dimmed because additive blending brightens wherever particles overlap.
-    particle: '#838897',
-    accent: '#a595ff',
-    ball: '#26282e',
-    additive: true,
-    pointSize: 0.03,
-    pusher: '#a595ff',
-  },
-} satisfies Record<ThemeName, unknown>;
-
-const ACCENT_SHARE = 0.12;
-const SHADE_JITTER = 0.08;
+const SHADE_JITTER = 0.05;
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeIn = (t: number) => t * t * t;
@@ -121,26 +77,21 @@ function currentTheme(): ThemeName {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 }
 
-// Relative (not additive) so very dark and very light letters vary by the same amount.
-function letterColor(theme: ThemeName, shade: number, out = new THREE.Color()): THREE.Color {
-  return out.set(LOOK[theme].letter).multiplyScalar(1 + shade * SHADE_JITTER);
+function currentPalette(): PaletteName {
+  const value = document.documentElement.dataset.palette;
+  return isPalette(value) ? value : DEFAULT_PALETTE;
 }
 
-function letterMaterial(theme: ThemeName, shade: number): THREE.MeshPhysicalMaterial {
-  const look = LOOK[theme];
-  return new THREE.MeshPhysicalMaterial({
-    color: letterColor(theme, shade),
-    roughness: look.roughness,
-    metalness: 0,
-    clearcoat: look.clearcoat,
-    clearcoatRoughness: look.coatRoughness,
-    envMapIntensity: look.letterEnv,
-    iridescence: look.iridescence,
-    iridescenceIOR: 1.3,
-    iridescenceThicknessRange: [120, 420],
-    transparent: true,
-    opacity: 0,
-  });
+const WHITE = new THREE.Color(0xffffff);
+
+/** Colour of a letter at local height y: a soft bottom → top gradient. */
+function letterColorAt(look: Look, l: Letter, y: number, out: THREE.Color): THREE.Color {
+  const [bottom, top] = look.letters[l.index % look.letters.length];
+  const t = clamp01((y - l.yMin) / Math.max(1e-6, l.yMax - l.yMin));
+  const k = t * t * (3 - 2 * t);
+  out.set(bottom);
+  if (top !== bottom) out.lerp(new THREE.Color(top), k);
+  return out.multiplyScalar(1 + l.shade * SHADE_JITTER);
 }
 
 function surfaceArea(geo: THREE.BufferGeometry): number {
@@ -206,6 +157,8 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   const coarse = window.matchMedia('(pointer: coarse)').matches;
   const fineHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   let theme = currentTheme();
+  let palette = currentPalette();
+  const look = (): Look => PALETTES[palette][theme];
   document.documentElement.classList.add('has-3d', 'hero-ready');
 
   // ---------------------------------------------------------------- renderer
@@ -225,10 +178,10 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   pmrem.dispose();
 
-  const hemi = new THREE.HemisphereLight(0xffffff, LOOK[theme].ground, LOOK[theme].hemi);
+  const hemi = new THREE.HemisphereLight(0xffffff, look().ground, look().hemi);
   scene.add(hemi);
 
-  const key = new THREE.DirectionalLight(0xffffff, LOOK[theme].key);
+  const key = new THREE.DirectionalLight(0xffffff, look().key);
   key.position.set(-6, 11, 8);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -239,7 +192,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   key.shadow.camera.updateProjectionMatrix();
   scene.add(key);
 
-  const rim = new THREE.PointLight(LOOK[theme].rimColor, LOOK[theme].rim, 30, 1.6);
+  const rim = new THREE.PointLight(look().rimColor, look().rim, 30, 1.6);
   rim.position.set(0, 3.5, -5);
   scene.add(rim);
 
@@ -271,7 +224,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   const pusher = new THREE.Mesh(
     new THREE.SphereGeometry(PUSHER_RADIUS, 32, 16),
     new THREE.MeshPhysicalMaterial({
-      color: LOOK[theme].pusher,
+      color: look().pusher,
       roughness: 0.15,
       clearcoat: 1,
       transparent: true,
@@ -290,6 +243,46 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   let walls: CANNON.Body[] = [];
   let bounds = { halfX: 8, zBack: -3, zFront: 3, width: 12, depth: 0, centerY: 0.42 };
   let twoRows = false;
+
+  function letterMaterial(): THREE.MeshPhysicalMaterial {
+    return new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      vertexColors: true,
+      metalness: 0,
+      iridescenceIOR: 1.3,
+      iridescenceThicknessRange: [180, 480],
+      transparent: true,
+      opacity: 0,
+    });
+  }
+
+  /** Writes the palette gradient into the letter's vertex colours and sets its material. */
+  function paintLetter(l: Letter) {
+    const lk = look();
+    const geo = l.mesh.geometry;
+    const pos = geo.getAttribute('position') as THREE.BufferAttribute;
+    let col = geo.getAttribute('color') as THREE.BufferAttribute | undefined;
+    if (!col || col.count !== pos.count) {
+      col = new THREE.BufferAttribute(new Float32Array(pos.count * 3), 3);
+      geo.setAttribute('color', col);
+    }
+    const c = new THREE.Color();
+    for (let i = 0; i < pos.count; i++) {
+      letterColorAt(lk, l, pos.getY(i), c);
+      col.setXYZ(i, c.r, c.g, c.b);
+    }
+    col.needsUpdate = true;
+    const m = l.mesh.material;
+    m.roughness = lk.roughness;
+    m.clearcoat = lk.clearcoat;
+    m.clearcoatRoughness = lk.coatRoughness;
+    m.envMapIntensity = lk.letterEnv;
+    m.iridescence = lk.iridescence;
+    m.sheen = lk.sheen;
+    m.sheenRoughness = lk.sheenRoughness;
+    const base = letterColorAt(lk, l, l.yMin, new THREE.Color());
+    m.sheenColor.copy(WHITE).lerp(base.lerp(WHITE, 0.35), lk.sheenTint);
+  }
 
   function buildLetters(rowsOfText: string[]) {
     for (const l of letters) {
@@ -318,7 +311,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
           bevelEnabled: true,
           bevelThickness: BEVEL,
           bevelSize: BEVEL * 0.8,
-          bevelSegments: 4,
+          bevelSegments: 6,
         });
         geo.computeBoundingBox();
         const box = geo.boundingBox!;
@@ -333,7 +326,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
       for (const p of placed) {
         const shade = Math.sin(n * 91.7 + 1.3);
         const home = new THREE.Vector3(p.x - rowWidth / 2, p.size.y / 2, zs[r]);
-        const mesh = new THREE.Mesh(p.geo, letterMaterial(theme, shade));
+        const mesh = new THREE.Mesh(p.geo, letterMaterial());
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         mesh.position.copy(home);
@@ -349,7 +342,9 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
           sleepSpeedLimit: 0.12,
           sleepTimeLimit: 0.8,
         });
-        letters.push({ mesh, body, home, shade });
+        const letter: Letter = { mesh, body, home, index: n, shade, yMin: -p.size.y / 2, yMax: p.size.y / 2 };
+        paintLetter(letter);
+        letters.push(letter);
         n++;
       }
     });
@@ -413,7 +408,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     uniforms: {
       uMix: { value: 0 },
       uTime: { value: 0 },
-      uSize: { value: LOOK[theme].pointSize },
+      uSize: { value: look().pointSize },
       uScale: { value: 1000 },
       uJitter: { value: 1 },
       uOpacity: { value: 1 },
@@ -422,12 +417,11 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     fragmentShader: particleFragment,
     transparent: true,
     depthWrite: false,
-    blending: LOOK[theme].additive ? THREE.AdditiveBlending : THREE.NormalBlending,
+    blending: look().additive ? THREE.AdditiveBlending : THREE.NormalBlending,
   });
   let points: THREE.Points | null = null;
   let local = new Float32Array(0);
   let owner = new Uint16Array(0);
-  let accentMask = new Uint8Array(0);
   let homeWorld = new Float32Array(0);
   let noise = new Float32Array(0);
 
@@ -443,7 +437,6 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     const count = counts.reduce((s, c) => s + c, 0);
     local = new Float32Array(count * 3);
     owner = new Uint16Array(count);
-    accentMask = new Uint8Array(count).map(() => (Math.random() < ACCENT_SHARE ? 1 : 0));
     homeWorld = new Float32Array(count * 3);
     noise = new Float32Array(count * 3);
     const tmp = new THREE.Vector3();
@@ -475,11 +468,12 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     if (!points) return;
     const attr = points.geometry.getAttribute('aColor') as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
-    const base = new THREE.Color(LOOK[theme].particle);
-    const accent = new THREE.Color(LOOK[theme].accent);
+    const lk = look();
     const c = new THREE.Color();
     for (let i = 0; i < owner.length; i++) {
-      c.copy(accentMask[i] ? accent : base).multiplyScalar(0.88 + Math.random() * 0.24);
+      letterColorAt(lk, letters[owner[i]], local[i * 3 + 1], c).multiplyScalar(
+        lk.particleGain * (0.88 + Math.random() * 0.24),
+      );
       arr[i * 3] = c.r;
       arr[i * 3 + 1] = c.g;
       arr[i * 3 + 2] = c.b;
@@ -534,7 +528,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     const mesh = new THREE.Mesh(
       ballGeo,
       new THREE.MeshPhysicalMaterial({
-        color: LOOK[theme].ball,
+        color: look().ball,
         roughness: 0.16,
         metalness: 0.1,
         clearcoat: 1,
@@ -567,16 +561,17 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   // ------------------------------------------------------------------ camera
   const view = { dist: 16, pitch: 0.22, target: new THREE.Vector3() };
   const cam = { yaw: 0, pitch: 0 };
-  let navHeight = 64;
 
   function frameCamera() {
     const w = stage.clientWidth;
     const h = stage.clientHeight;
     const contentH = opts.content?.offsetHeight ?? h * 0.3;
-    navHeight = document.querySelector<HTMLElement>('[data-nav]')?.offsetHeight ?? 64;
+    const navHeight = document.querySelector<HTMLElement>('[data-nav]')?.offsetHeight ?? 64;
+    const heroTop = (stage.offsetParent as HTMLElement | null)?.offsetTop ?? 0;
+    const overlap = Math.max(0, navHeight - heroTop);
     const vHalf = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
     const hHalf = vHalf * camera.aspect;
-    const availH = Math.max(h * 0.28, h - contentH - navHeight);
+    const availH = Math.max(h * 0.28, h - contentH - overlap);
     view.pitch = twoRows ? 0.52 : 0.3;
     const halfW = bounds.width / 2 + 0.6;
     const distH = halfW / (hHalf * (twoRows ? 0.92 : 0.86));
@@ -584,7 +579,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     const distV = extentV / (vHalf * (availH / h) * 0.85);
     view.dist = Math.max(8, distH, distV);
     // Centre the letters in the free space above the text block.
-    const ndcY = (contentH - navHeight) / h;
+    const ndcY = (contentH - overlap) / h;
     const lift = (ndcY * view.dist * vHalf) / Math.cos(view.pitch);
     view.target.set(0, bounds.centerY - lift, 0);
   }
@@ -742,7 +737,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     phaseT += dt;
     const u = pMat.uniforms;
     u.uTime.value = time;
-    const shadowTarget = LOOK[theme].shadow;
+    const shadowTarget = look().shadow;
 
     if (phase === 'denoise') {
       const p = reduceMotion ? 1 : clamp01((phaseT - HOLD_TIME) / DENOISE_TIME);
@@ -784,37 +779,29 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     updateCamera(dt, time);
   }
 
-  // ------------------------------------------------------------------- theme
-  function applyTheme(next: ThemeName) {
-    theme = next;
-    const look = LOOK[next];
-    scene.environmentIntensity = look.env;
-    hemi.intensity = look.hemi;
-    hemi.groundColor.set(look.ground);
-    key.intensity = look.key;
-    rim.intensity = look.rim;
-    rim.color.set(look.rimColor);
-    pusher.material.color.set(look.pusher);
-    for (const l of letters) {
-      const m = l.mesh.material;
-      letterColor(next, l.shade, m.color);
-      m.roughness = look.roughness;
-      m.clearcoat = look.clearcoat;
-      m.clearcoatRoughness = look.coatRoughness;
-      m.envMapIntensity = look.letterEnv;
-      m.iridescence = look.iridescence;
-    }
-    for (const b of balls) b.mesh.material.color.set(look.ball);
-    pMat.uniforms.uSize.value = look.pointSize;
-    pMat.blending = look.additive ? THREE.AdditiveBlending : THREE.NormalBlending;
+  // ------------------------------------------------------------ theme/palette
+  function applyLook() {
+    theme = currentTheme();
+    palette = currentPalette();
+    const lk = look();
+    scene.environmentIntensity = lk.env;
+    hemi.intensity = lk.hemi;
+    hemi.groundColor.set(lk.ground);
+    key.intensity = lk.key;
+    rim.intensity = lk.rim;
+    rim.color.set(lk.rimColor);
+    pusher.material.color.set(lk.pusher);
+    for (const l of letters) paintLetter(l);
+    for (const b of balls) b.mesh.material.color.set(lk.ball);
+    pMat.uniforms.uSize.value = lk.pointSize;
+    pMat.blending = lk.additive ? THREE.AdditiveBlending : THREE.NormalBlending;
     pMat.needsUpdate = true;
     colorParticles();
-    if (phase === 'solid') floorMat.opacity = look.shadow;
+    if (phase === 'solid') floorMat.opacity = lk.shadow;
   }
   new MutationObserver(() => {
-    const next = currentTheme();
-    if (next !== theme) applyTheme(next);
-  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    if (currentTheme() !== theme || currentPalette() !== palette) applyLook();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-palette'] });
 
   // ------------------------------------------------------------------ layout
   function rowsFor(width: number, height: number): string[] {
@@ -828,7 +815,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     clearBalls();
     buildLetters(rowsFor(w, h));
     buildParticles();
-    applyTheme(theme);
+    applyLook();
     sampleNoise();
     setPath(noise, homeWorld);
     enter('denoise');
@@ -921,11 +908,11 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
           return { phase, status: statusText };
         },
         regenerate: () => phase === 'solid' && enter('noising'),
-        tune(patch: Partial<(typeof LOOK)[ThemeName]>) {
-          Object.assign(LOOK[theme], patch);
-          applyTheme(theme);
+        tune(patch: Partial<Look>) {
+          Object.assign(PALETTES[palette][theme], patch);
+          applyLook();
           renderer.render(scene, camera);
-          return LOOK[theme];
+          return look();
         },
         drop: () => phase === 'solid' && dropBall(),
       },
