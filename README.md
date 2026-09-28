@@ -35,8 +35,13 @@ npm run build   # static site in dist/
 
 ## Deployment
 
-Pushing to `master` runs `.github/workflows/deploy.yml`, which builds the site and publishes `dist/`
-to the `gh-pages` branch that GitHub Pages serves. Pull requests only run the build.
+`.github/workflows/deploy.yml` builds the site and publishes `dist/` to a branch that GitHub Pages
+can serve (Settings → Pages → Deploy from a branch):
+
+- push to `master` → `gh-pages`
+- push to `redesign-3d` → `gh-pages-redesign`
+
+Pull requests only run the build.
 
 ## Hero font
 

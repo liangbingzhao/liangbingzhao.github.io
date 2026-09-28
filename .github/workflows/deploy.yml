@@ -1,10 +1,16 @@
 name: deploy
 
+# Builds the Astro site and publishes dist/ to a branch that GitHub Pages serves:
+#   master / main  → gh-pages
+#   redesign-3d    → gh-pages-redesign (preview of the new design; master stays untouched)
+# Pick the branch under Settings → Pages → "Deploy from a branch".
+
 on:
   push:
     branches:
       - master
       - main
+      - redesign-3d
   pull_request:
     branches:
       - master
@@ -41,3 +47,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
+          branch: ${{ github.ref_name == 'redesign-3d' && 'gh-pages-redesign' || 'gh-pages' }}
