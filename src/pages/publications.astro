@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PaperCard from '../components/PaperCard.astro';
+import Icon from '../components/Icon.astro';
+import { papers, papersByYear } from '../lib/papers';
+import { site } from '../site.config';
+
+const groups = papersByYear();
+const hasEqual = papers.some((p) => p.authors.some((a) => a.equal));
+---
+
+<Base title="Publications" description={`Publications by ${site.name}.`}>
+  <PageHead eyebrow="research" title="Publications" description="Publications in reversed chronological order.">
+    <a
+      class="btn btn--sm"
+      href={`https://scholar.google.com/citations?user=${site.socials.scholar}`}
+      target="_blank"
+      rel="noopener"
+    >
+      Google Scholar <Icon name="arrow-up-right" />
+    </a>
+  </PageHead>
+
+  <div class="container pubs">
+    {
+      groups.map(([year, list]) => (
+        <section class="year-group" aria-labelledby={`year-${year}`}>
+          <h2 id={`year-${year}`}>{year}</h2>
+          <div class="papers">
+            {list.map((p) => (
+              <PaperCard paper={p} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+    {hasEqual && <p class="eyebrow">* equal contribution</p>}
+  </div>
+</Base>

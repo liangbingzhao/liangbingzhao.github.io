@@ -1,0 +1,65 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import type { Paper } from '../lib/papers';
+
+interface Props {
+  paper: Paper;
+  as?: 'h2' | 'h3';
+}
+
+const { paper, as: Heading = 'h3' } = Astro.props;
+const main = paper.links[0]?.href;
+const last = paper.authors.length - 1;
+const sep = (i: number) => (i === last ? '' : last === 1 ? ' and ' : i === last - 1 ? ', and ' : ', ');
+---
+
+<article class:list={['paper', { 'paper--nofig': !paper.preview }]} data-tilt data-reveal>
+  {
+    paper.preview && (
+      <a class="paper__figure" href={main} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+        <Image src={paper.preview} alt="" widths={[360, 600, 900]} sizes="(max-width: 760px) 92vw, 300px" />
+      </a>
+    )
+  }
+  <div class="paper__main">
+    <span class="paper__badge">{paper.badge}</span>
+    <Heading class="paper__title">
+      {main ? <a href={main} target="_blank" rel="noopener">{paper.title}</a> : paper.title}
+    </Heading>
+    <p class="paper__authors">
+      {
+        paper.authors.map((a, i) => (
+          <>
+            <span class={a.isSelf ? 'author--self' : undefined}>
+              {a.name}
+              {a.equal && '*'}
+            </span>
+            {sep(i)}
+          </>
+        ))
+      }
+    </p>
+    <p class="paper__venue">{paper.venue}{paper.year ? `, ${paper.year}` : ''}</p>
+    {
+      paper.links.length > 0 && (
+        <div class="paper__links">
+          {paper.links.map((l) => (
+            <a class="chip" href={l.href} target="_blank" rel="noopener">
+              {l.label}
+              <Icon name="arrow-up-right" />
+            </a>
+          ))}
+        </div>
+      )
+    }
+    {
+      paper.abstract && (
+        <details class="paper__abstract">
+          <summary>Abstract</summary>
+          <p>{paper.abstract}</p>
+        </details>
+      )
+    }
+  </div>
+</article>

@@ -1,0 +1,90 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Page has the 3D hero (enables the WebGL check before first paint). */
+  hero?: boolean;
+}
+
+const { title, description = site.description, hero = false } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.name} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#090b10" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        var theme = null;
+        try {
+          theme = localStorage.getItem('theme');
+        } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        root.dataset.theme = theme;
+        // If the page script never runs, show everything instead of waiting for reveal animations.
+        setTimeout(function () {
+          if (!root.classList.contains('ui-ready')) root.classList.remove('js');
+        }, 3000);
+      })();
+    </script>
+    {
+      hero && (
+        <script is:inline>
+          (function () {
+            try {
+              var root = document.documentElement;
+              var gl = document.createElement('canvas').getContext('webgl2');
+              if (!gl) return;
+              root.classList.add('has-3d');
+              var lose = gl.getExtension('WEBGL_lose_context');
+              if (lose) lose.loseContext();
+              // Fall back to the text hero if the 3D scene is slow to arrive (it re-enables itself later).
+              setTimeout(function () {
+                if (!root.classList.contains('hero-ready')) root.classList.remove('has-3d');
+              }, 6000);
+            } catch (e) {}
+          })();
+        </script>
+      )
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/ui';
+    </script>
+  </body>
+</html>

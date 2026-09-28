@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+
+const path = Astro.url.pathname.replace(/\/?$/, '/');
+---
+
+<header class="nav" data-nav>
+  <div class="container nav__inner">
+    <a class="nav__brand" href="/">
+      <span class="full"><b>Liangbing</b> (Liam) Zhao</span>
+      <span class="short"><b>Liam</b> Zhao</span>
+    </a>
+    <nav class="nav__links" aria-label="Main">
+      {
+        site.nav.map((item) => (
+          <a class="nav__link" href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode">
+        <Icon name="sun" class="icon-sun" />
+        <Icon name="moon" class="icon-moon" />
+      </button>
+    </nav>
+  </div>
+</header>

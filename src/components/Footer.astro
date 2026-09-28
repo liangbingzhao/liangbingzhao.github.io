@@ -1,0 +1,16 @@
+---
+import { site } from '../site.config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <span>© {year} {site.name}</span>
+    <span>
+      Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>{' & '}
+      <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a>{'. Hosted by '}
+      <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>.
+    </span>
+  </div>
+</footer>

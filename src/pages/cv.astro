@@ -1,0 +1,121 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Icon from '../components/Icon.astro';
+import { cv, slug } from '../lib/cv';
+import { site } from '../site.config';
+---
+
+<Base title="CV" description={`Curriculum vitae of ${site.name}.`}>
+  <PageHead eyebrow="curriculum vitae" title="CV" description="This is my CV. Update on Jan. 9, 2024.">
+    <a class="btn btn--sm btn--primary" href={site.cvPdf} target="_blank" rel="noopener">
+      <Icon name="download" /> PDF version
+    </a>
+  </PageHead>
+
+  <div class="container cv">
+    <nav class="cv-toc" aria-label="CV sections">
+      {cv.map((s) => <a href={`#${slug(s.title)}`}>{s.title}</a>)}
+    </nav>
+
+    <div>
+      {
+        cv.map((section) => (
+          <section class="cv-section" id={slug(section.title)} data-reveal>
+            <h2>{section.title}</h2>
+
+            {section.type === 'map' && (
+              <dl class="cv-map">
+                {section.contents.map((c) => (
+                  <>
+                    <dt>{c.name}</dt>
+                    <dd>{c.value}</dd>
+                  </>
+                ))}
+              </dl>
+            )}
+
+            {section.type === 'time_table' &&
+              section.contents.map((e) => (
+                <div class="cv-entry">
+                  <span class="cv-year">{e.year}</span>
+                  <div>
+                    {e.title && <h3>{e.title}</h3>}
+                    {e.institution && (
+                      <p class="cv-inst">
+                        <Icon name="building" />
+                        {e.institution}
+                      </p>
+                    )}
+                    {e.description && (
+                      <ul>
+                        {e.description.map((d) =>
+                          typeof d === 'string' ? (
+                            <li>{d}</li>
+                          ) : (
+                            <li>
+                              {d.title}
+                              <ul>
+                                {d.contents.map((c) => (
+                                  <li>{c}</li>
+                                ))}
+                              </ul>
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    )}
+                    {e.items && (
+                      <ul>
+                        {e.items.map((item) => (
+                          <li>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+            {section.type === 'nested_list' &&
+              section.contents.map((n) => (
+                <div class="cv-nested">
+                  <h3>{n.title}</h3>
+                  <ul class="cv-list">
+                    {n.items.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+            {section.type === 'list' && (
+              <ul class="cv-list">
+                {section.contents.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<script>
+  // Highlight the section currently in view in the side menu.
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>('.cv-toc a')].map((a) => [a.hash.slice(1), a]),
+  );
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        links.forEach((a) => a.classList.remove('is-active'));
+        links.get(entry.target.id)?.classList.add('is-active');
+      }
+    },
+    { rootMargin: '-35% 0px -55% 0px' },
+  );
+  document.querySelectorAll('.cv-section').forEach((s) => io.observe(s));
+</script>

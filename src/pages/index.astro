@@ -1,0 +1,142 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import PaperCard from '../components/PaperCard.astro';
+import NewsList from '../components/NewsList.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import Icon from '../components/Icon.astro';
+import * as about from '../data/about.md';
+import { selectedPapers } from '../lib/papers';
+import { asset } from '../lib/assets';
+import { site } from '../site.config';
+
+interface AboutFrontmatter {
+  position: string;
+  affiliation: string;
+  email: string;
+  photo: string;
+  interests: { title: string; description: string }[];
+  notice?: string;
+  notice_short?: string;
+}
+
+const fm = about.frontmatter as AboutFrontmatter;
+const photo = asset(fm.photo);
+const tagline = fm.interests.map((i) => i.title).join(' · ');
+
+// Little "noise → grid" dots for the first research-interest card (deterministic scatter).
+const rand = (i: number) => {
+  const x = Math.sin(i * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+};
+const dots = Array.from({ length: 25 }, (_, i) => {
+  const dx = (rand(i) - 0.5) * 26;
+  const dy = (rand(i + 99) - 0.5) * 26;
+  return { x: 14 + (i % 5) * 18 + dx, y: 14 + Math.floor(i / 5) * 18 + dy, dx, dy };
+});
+---
+
+<Base hero>
+  <Hero eyebrow={`${fm.position} · ${fm.affiliation}`} tagline={tagline} notice={fm.notice_short} />
+
+  <section class="section container" id="about" aria-labelledby="about-title">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">01</span>
+      <h2 class="section-title" id="about-title">About</h2>
+    </div>
+    <div class="about">
+      <div>
+        <div class="prose" data-reveal>
+          <about.Content />
+        </div>
+        {
+          fm.notice && (
+            <p class="notice" data-reveal>
+              <i class="pulse-dot" aria-hidden="true" />
+              <span>{fm.notice}</span>
+            </p>
+          )
+        }
+      </div>
+      <aside class="profile" data-reveal style="--d:.1s">
+        <Image
+          src={photo}
+          alt={`Portrait of ${site.name}`}
+          widths={[320, 480, 640]}
+          sizes="(max-width: 860px) 340px, 300px"
+        />
+        <div class="profile__body">
+          <p>{fm.position}</p>
+          <p>{fm.affiliation}</p>
+          <p><a href={`mailto:${fm.email}`}>{fm.email}</a></p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="interests">
+      {
+        fm.interests.map((it, i) => (
+          <article class="interest" data-reveal style={`--d:${(i * 0.08).toFixed(2)}s`}>
+            <svg class="interest__art" viewBox="0 0 100 100" aria-hidden="true">
+              {i % 2 === 0 ? (
+                dots.map((d) => (
+                  <circle
+                    class="n"
+                    cx={d.x.toFixed(1)}
+                    cy={d.y.toFixed(1)}
+                    r="2.6"
+                    fill="currentColor"
+                    style={`--tx:${(-d.dx).toFixed(1)}px;--ty:${(-d.dy).toFixed(1)}px`}
+                  />
+                ))
+              ) : (
+                <>
+                  <circle class="n" cx="34" cy="50" r="24" fill="none" stroke="currentColor" stroke-width="1.6" style="--tx:10px;--ty:0px" />
+                  <circle class="n" cx="66" cy="50" r="24" fill="none" stroke="currentColor" stroke-width="1.6" style="--tx:-10px;--ty:0px" />
+                  <circle cx="50" cy="50" r="3" fill="currentColor" />
+                </>
+              )}
+            </svg>
+            <span class="eyebrow">research interest · 0{i + 1}</span>
+            <h3>{it.title}</h3>
+            <p>{it.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section container" id="news" aria-labelledby="news-title">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">02</span>
+      <h2 class="section-title" id="news-title">News</h2>
+    </div>
+    <NewsList />
+  </section>
+
+  <section class="section container" id="publications" aria-labelledby="pubs-title">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">03</span>
+      <h2 class="section-title" id="pubs-title">Selected publications</h2>
+    </div>
+    <div class="papers">
+      {selectedPapers.map((p) => <PaperCard paper={p} />)}
+    </div>
+    <div class="section-foot" data-reveal>
+      <a class="btn" href="/publications/">All publications <Icon name="arrow-right" /></a>
+    </div>
+  </section>
+
+  <section class="contact container" id="contact" aria-labelledby="contact-title">
+    <span class="eyebrow" data-reveal>04 · contact</span>
+    <h2 class="contact__title" id="contact-title" data-reveal>Get in <span>touch.</span></h2>
+    <p class="contact__note" data-reveal>{site.contactNote}</p>
+    <div data-reveal>
+      <a class="btn btn--primary" href={`mailto:${site.email}`}><Icon name="mail" /> {site.email}</a>
+    </div>
+    <div data-reveal>
+      <SocialLinks />
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,30 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  description?: string;
+}
+
+const { eyebrow, title, description } = Astro.props;
+const hasActions = Astro.slots.has('default');
+---
+
+<section class="page-head">
+  <canvas data-field aria-hidden="true"></canvas>
+  <div class="container">
+    <span class="eyebrow" data-reveal>{eyebrow}</span>
+    <h1 class="page-head__title" data-reveal style="--d:.05s">{title}</h1>
+    {description && <p class="page-head__desc" data-reveal style="--d:.1s">{description}</p>}
+    {
+      hasActions && (
+        <div class="page-head__actions" data-reveal style="--d:.15s">
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  import '../scripts/field';
+</script>

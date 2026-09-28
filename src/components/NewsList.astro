@@ -1,0 +1,23 @@
+---
+import { news, formatDate } from '../lib/news';
+
+interface Props {
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+const items = limit ? news.slice(0, limit) : news;
+---
+
+<ol class="news">
+  {
+    items.map(({ date, Content }, i) => (
+      <li data-reveal style={`--d:${(i * 0.06).toFixed(2)}s`}>
+        <time datetime={date.toISOString().slice(0, 10)}>{formatDate(date)}</time>
+        <div class="news__body">
+          <Content />
+        </div>
+      </li>
+    ))
+  }
+</ol>

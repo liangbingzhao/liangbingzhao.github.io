@@ -1,0 +1,53 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+
+interface Props {
+  eyebrow: string;
+  tagline: string;
+  notice?: string;
+}
+
+const { eyebrow, tagline, notice } = Astro.props;
+---
+
+<section class="hero" aria-label="Introduction">
+  <div class="hero__bg" aria-hidden="true"></div>
+  <div class="hero__stage" data-hero-stage data-words={site.heroWords.join(' ')} aria-hidden="true"></div>
+
+  <div class="container hero__content" data-hero-content>
+    <h1 class="hero__name"><span>Liangbing</span><span>(Liam) Zhao</span></h1>
+    <div class="hero__row">
+      <div>
+        {
+          notice && (
+            <p class="hero__pill">
+              <i class="pulse-dot" aria-hidden="true" />
+              {notice}
+            </p>
+          )
+        }
+        <p class="hero__eyebrow">{eyebrow}</p>
+        <p class="hero__tagline">{tagline}</p>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="/publications/">Publications <Icon name="arrow-right" /></a>
+          <a class="btn" href="/cv/"><Icon name="file" /> CV</a>
+          <a class="btn" href={`mailto:${site.email}`}><Icon name="mail" /> Email</a>
+        </div>
+      </div>
+
+      <div class="hero__controls" aria-label="3D scene controls" role="group">
+        <span class="hero__status" data-hero-status><i aria-hidden="true"></i><span>loading scene…</span></span>
+        <div class="hero__buttons">
+          <button class="btn btn--sm" type="button" data-hero-ball><Icon name="ball" /> drop a ball</button>
+          <button class="btn btn--sm" type="button" data-hero-regen><Icon name="refresh" /> re-generate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue" aria-hidden="true"></div>
+</section>
+
+<script>
+  import '../scripts/hero/boot';
+</script>
