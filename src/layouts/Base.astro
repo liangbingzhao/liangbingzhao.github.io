@@ -18,6 +18,11 @@ interface Props {
 
 const { title, description = site.description, hero = false } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : site.name;
+// Browser UI colour (address bar etc.) per palette: [light, dark].
+const themeColor = { velvet: ['#f4f1eb', '#1c1b19'], spring: ['#f6f6f3', '#1a1c22'] }[site.palette] ?? [
+  '#f4f1eb',
+  '#1c1b19',
+];
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 ---
 
@@ -33,8 +38,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#181a1f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content={themeColor[0]} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={themeColor[1]} media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />

@@ -1,8 +1,8 @@
 // Colour schemes for the 3D hero. Each palette has a light and a dark look; the page colours
 // that go with it live in src/styles/global.css under :root[data-palette='…'].
 //
+//   velvet  mid-century plush: burnt orange, mustard, teal, navy, dusty rose (in use)
 //   spring  soft pastel clay with in-letter gradients (after Leonardoworx, "Spring Collection 26")
-//   velvet  mid-century plush: burnt orange, mustard, teal, navy, dusty rose
 //
 // Dropped balls and the cursor ball are painted from the same colours as the letters.
 export type ThemeName = 'light' | 'dark';
@@ -140,7 +140,7 @@ export const PALETTES: Record<PaletteName, Record<ThemeName, Look>> = {
   },
 };
 
-export const DEFAULT_PALETTE: PaletteName = 'spring';
+export const DEFAULT_PALETTE: PaletteName = 'velvet';
 
 export function isPalette(value: unknown): value is PaletteName {
   return typeof value === 'string' && value in PALETTES;

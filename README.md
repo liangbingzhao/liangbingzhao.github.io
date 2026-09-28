@@ -6,7 +6,9 @@ Built with [Astro](https://astro.build) and [three.js](https://threejs.org). The
 interactive scene that follows a diffusion model: particles are denoised from Gaussian noise into
 the name (`t = 1000 → 0`), then the letters turn into rigid bodies ([cannon-es](https://github.com/pmndrs/cannon-es))
 that you can push around or drop balls on. "re-generate" adds the noise back and samples again.
-Light and dark themes are both supported.
+Light and dark themes are both supported. The colour scheme is `palette` in `src/site.config.ts`
+(`velvet` in use, `spring` as an alternative; colours live in `src/scripts/hero/palettes.ts` and
+`src/styles/global.css`). In `npm run dev` a small switcher in the bottom-left corner compares them.
 
 ## Editing content
 

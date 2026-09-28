@@ -5,7 +5,7 @@ export const site = {
   // Words spelled out by the 3D letters in the hero (A–Z only).
   heroWords: ['LIANGBING', 'ZHAO'],
   // Colour scheme: 'spring' | 'velvet' (see src/scripts/hero/palettes.ts).
-  palette: 'spring',
+  palette: 'velvet',
   // Used to highlight your name in author lists.
   self: { first: 'Liangbing', last: 'Zhao' },
   description:
