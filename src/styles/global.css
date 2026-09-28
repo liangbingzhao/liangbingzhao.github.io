@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
    Design tokens
    Layout/type tokens, then one colour block per palette × theme.
-   Palettes: spring (default), klein, velvet — see src/scripts/hero/palettes.ts.
+   Palettes: spring (default), velvet — see src/scripts/hero/palettes.ts.
    Every palette block sets the same colour variables in light and dark, so a
    palette's light values never leak into dark mode.
 --------------------------------------------------------------------------- */
@@ -93,48 +93,6 @@
     --glow-1: rgba(108, 140, 240, 0.14);
     --glow-2: rgba(76, 195, 168, 0.07);
   }
-}
-
-/* klein · light — pastel pearls on an electric-blue stage */
-:root[data-palette='klein'] {
-  --bg: #f4f5f8;
-  --bg-elev: #ffffff;
-  --bg-soft: #e9ebf2;
-  --text: #12141b;
-  --text-2: #444857;
-  --text-3: #767a89;
-  --line: rgba(18, 20, 27, 0.09);
-  --line-strong: rgba(18, 20, 27, 0.17);
-  --accent: #2340ff;
-  --accent-2: #ff6b4a;
-  --accent-3: #12b886;
-  --accent-soft: rgba(35, 64, 255, 0.08);
-  --grad: linear-gradient(100deg, #2340ff 0%, #6a7bff 55%, #b5a4ff 100%);
-  --nav-bg: rgba(244, 245, 248, 0.78);
-  --glow-1: rgba(35, 64, 255, 0.1);
-  --glow-2: rgba(181, 164, 255, 0.12);
-  --hero-bg: radial-gradient(90% 85% at 50% 28%, #3b57ff 0%, #2541f2 42%, #172bc7 100%);
-}
-
-/* klein · dark */
-:root[data-palette='klein'][data-theme='dark'] {
-  --bg: #15171d;
-  --bg-elev: #1e2129;
-  --bg-soft: #262a33;
-  --text: #eef0f6;
-  --text-2: #b7bccb;
-  --text-3: #858a9a;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.16);
-  --accent: #7d8cff;
-  --accent-2: #ff8a6b;
-  --accent-3: #4fd1a5;
-  --accent-soft: rgba(125, 140, 255, 0.14);
-  --grad: linear-gradient(100deg, #7d8cff 0%, #a9b4ff 50%, #d5c9ff 100%);
-  --nav-bg: rgba(21, 23, 29, 0.78);
-  --glow-1: rgba(60, 85, 255, 0.14);
-  --glow-2: rgba(181, 164, 255, 0.06);
-  --hero-bg: radial-gradient(90% 85% at 50% 28%, #2a43e6 0%, #1b30b8 45%, #0e1a78 100%);
 }
 
 /* velvet · light — mid-century plush */
@@ -535,35 +493,6 @@ a:hover {
   z-index: -2;
   background: var(--hero-bg);
   transition: opacity 0.6s;
-}
-
-/* klein: the hero is an inset electric-blue stage, so its text flips to white. */
-:root[data-palette='klein'] .hero {
-  margin: calc(var(--nav-h) + 4px) clamp(8px, 1.4vw, 18px) 0;
-  min-height: calc(100vh - var(--nav-h) - 16px);
-  min-height: calc(100svh - var(--nav-h) - 16px);
-  border-radius: 28px;
-  --bg: #1f36e0;
-  --bg-elev: rgba(255, 255, 255, 0.1);
-  --text: #ffffff;
-  --text-2: rgba(255, 255, 255, 0.82);
-  --text-3: rgba(255, 255, 255, 0.62);
-  --line: rgba(255, 255, 255, 0.2);
-  --line-strong: rgba(255, 255, 255, 0.36);
-  --accent: #ffffff;
-  --accent-2: #ffb49c;
-  --accent-3: #9ff0d6;
-  color: var(--text);
-}
-
-:root[data-palette='klein'][data-theme='dark'] .hero {
-  --bg: #16229c;
-}
-
-@media (max-width: 560px) {
-  :root[data-palette='klein'] .hero {
-    border-radius: 20px;
-  }
 }
 
 .hero__stage {

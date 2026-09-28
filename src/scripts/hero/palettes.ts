@@ -2,10 +2,11 @@
 // that go with it live in src/styles/global.css under :root[data-palette='…'].
 //
 //   spring  soft pastel clay with in-letter gradients (after Leonardoworx, "Spring Collection 26")
-//   klein   pastel pearl letters on an electric-blue stage (pastel-on-bold 3D type)
 //   velvet  mid-century plush: burnt orange, mustard, teal, navy, dusty rose
+//
+// Dropped balls and the cursor ball are painted from the same colours as the letters.
 export type ThemeName = 'light' | 'dark';
-export type PaletteName = 'spring' | 'klein' | 'velvet';
+export type PaletteName = 'spring' | 'velvet';
 
 export interface Look {
   /** Letter colours, cycled along the name. Each is [bottom, top] of a soft vertical gradient. */
@@ -30,8 +31,8 @@ export interface Look {
   particleGain: number;
   additive: boolean;
   pointSize: number;
-  ball: string;
-  pusher: string;
+  /** Which letter colour the cursor ball uses (index into `letters`). */
+  pusher: number;
 }
 
 const SPRING: [string, string][] = [
@@ -40,14 +41,6 @@ const SPRING: [string, string][] = [
   ['#34b89b', '#7cc6ee'], // mint → sky
   ['#9b76ea', '#f09abb'], // lilac → pink
   ['#f2b02e', '#ff8f68'], // butter → peach
-];
-
-const PEARLS: [string, string][] = [
-  ['#f6f3ff', '#f6f3ff'],
-  ['#ffd4e5', '#ffd4e5'],
-  ['#ffe2cc', '#ffe2cc'],
-  ['#cff4e8', '#cff4e8'],
-  ['#dcd3ff', '#dcd3ff'],
 ];
 
 const solid = (hex: string): [string, string] => [hex, hex];
@@ -74,8 +67,7 @@ export const PALETTES: Record<PaletteName, Record<ThemeName, Look>> = {
       particleGain: 1,
       additive: false,
       pointSize: 0.034,
-      ball: '#fbf8f2',
-      pusher: '#4b63e6',
+      pusher: 3,
     },
     dark: {
       letters: SPRING,
@@ -97,56 +89,7 @@ export const PALETTES: Record<PaletteName, Record<ThemeName, Look>> = {
       particleGain: 0.62,
       additive: true,
       pointSize: 0.03,
-      ball: '#2a2d35',
-      pusher: '#8ea2ff',
-    },
-  },
-  klein: {
-    light: {
-      letters: PEARLS,
-      roughness: 0.22,
-      clearcoat: 1,
-      coatRoughness: 0.1,
-      sheen: 0,
-      sheenRoughness: 0.5,
-      sheenTint: 0,
-      iridescence: 0.75,
-      letterEnv: 1,
-      env: 0.95,
-      hemi: 0.55,
-      ground: 0x2238e0,
-      key: 1.8,
-      rim: 16,
-      rimColor: 0xb8c4ff,
-      shadow: 0.32,
-      particleGain: 0.75,
-      additive: true,
-      pointSize: 0.03,
-      ball: '#101c99',
-      pusher: '#ffffff',
-    },
-    dark: {
-      letters: PEARLS,
-      roughness: 0.22,
-      clearcoat: 1,
-      coatRoughness: 0.1,
-      sheen: 0,
-      sheenRoughness: 0.5,
-      sheenTint: 0,
-      iridescence: 0.75,
-      letterEnv: 1,
-      env: 0.8,
-      hemi: 0.4,
-      ground: 0x101a80,
-      key: 1.6,
-      rim: 18,
-      rimColor: 0xb8c4ff,
-      shadow: 0.4,
-      particleGain: 0.7,
-      additive: true,
-      pointSize: 0.03,
-      ball: '#0b1466',
-      pusher: '#ffffff',
+      pusher: 3,
     },
   },
   velvet: {
@@ -170,8 +113,7 @@ export const PALETTES: Record<PaletteName, Record<ThemeName, Look>> = {
       particleGain: 1,
       additive: false,
       pointSize: 0.034,
-      ball: '#f4f0e8',
-      pusher: '#c4532a',
+      pusher: 1,
     },
     dark: {
       letters: ['#e6703a', '#edb43c', '#2e9894', '#4a6ca6', '#e6a0a0'].map(solid),
@@ -193,8 +135,7 @@ export const PALETTES: Record<PaletteName, Record<ThemeName, Look>> = {
       particleGain: 0.6,
       additive: true,
       pointSize: 0.03,
-      ball: '#2b2926',
-      pusher: '#ee7a45',
+      pusher: 1,
     },
   },
 };

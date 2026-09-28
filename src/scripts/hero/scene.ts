@@ -23,21 +23,24 @@ export interface HeroOptions {
   regenButton: HTMLButtonElement | null;
 }
 
-interface Letter {
-  mesh: THREE.Mesh<TextGeometry, THREE.MeshPhysicalMaterial>;
-  body: CANNON.Body;
-  home: THREE.Vector3;
-  /** Position along the name; picks the letter's colour from the palette. */
+/** Anything painted with a palette gradient: letters, dropped balls, the cursor ball. */
+interface Paintable {
+  mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhysicalMaterial>;
+  /** Picks the colour pair from the palette (cycled). */
   index: number;
-  /** Small per-letter lightness offset in [-1, 1], so the letters read as hand-made. */
+  /** Small lightness offset in [-1, 1], so the letters read as hand-made. */
   shade: number;
-  /** Local vertical extent, for the in-letter gradient. */
+  /** Local vertical extent, for the bottom → top gradient. */
   yMin: number;
   yMax: number;
 }
 
-interface Ball {
-  mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhysicalMaterial>;
+interface Letter extends Paintable {
+  body: CANNON.Body;
+  home: THREE.Vector3;
+}
+
+interface Ball extends Paintable {
   body: CANNON.Body;
 }
 
@@ -84,8 +87,8 @@ function currentPalette(): PaletteName {
 
 const WHITE = new THREE.Color(0xffffff);
 
-/** Colour of a letter at local height y: a soft bottom → top gradient. */
-function letterColorAt(look: Look, l: Letter, y: number, out: THREE.Color): THREE.Color {
+/** Colour at local height y: a soft bottom → top gradient. */
+function letterColorAt(look: Look, l: Paintable, y: number, out: THREE.Color): THREE.Color {
   const [bottom, top] = look.letters[l.index % look.letters.length];
   const t = clamp01((y - l.yMin) / Math.max(1e-6, l.yMax - l.yMin));
   const k = t * t * (3 - 2 * t);
@@ -221,18 +224,6 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   pusherBody.allowSleep = false;
   world.addBody(pusherBody);
 
-  const pusher = new THREE.Mesh(
-    new THREE.SphereGeometry(PUSHER_RADIUS, 32, 16),
-    new THREE.MeshPhysicalMaterial({
-      color: look().pusher,
-      roughness: 0.15,
-      clearcoat: 1,
-      transparent: true,
-      opacity: 0,
-    }),
-  );
-  pusher.visible = false;
-  scene.add(pusher);
 
   // ----------------------------------------------------------------- letters
   const font = new Font(fontData as any);
@@ -256,8 +247,8 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     });
   }
 
-  /** Writes the palette gradient into the letter's vertex colours and sets its material. */
-  function paintLetter(l: Letter) {
+  /** Writes the palette gradient into the mesh's vertex colours and sets its material. */
+  function paint(l: Paintable) {
     const lk = look();
     const geo = l.mesh.geometry;
     const pos = geo.getAttribute('position') as THREE.BufferAttribute;
@@ -283,6 +274,18 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     const base = letterColorAt(lk, l, l.yMin, new THREE.Color());
     m.sheenColor.copy(WHITE).lerp(base.lerp(WHITE, 0.35), lk.sheenTint);
   }
+
+  const pusherMesh = new THREE.Mesh(new THREE.SphereGeometry(PUSHER_RADIUS, 40, 24), letterMaterial());
+  pusherMesh.visible = false;
+  scene.add(pusherMesh);
+  const pusher: Paintable = {
+    mesh: pusherMesh,
+    index: look().pusher,
+    shade: 0,
+    yMin: -PUSHER_RADIUS,
+    yMax: PUSHER_RADIUS,
+  };
+  paint(pusher);
 
   function buildLetters(rowsOfText: string[]) {
     for (const l of letters) {
@@ -343,7 +346,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
           sleepTimeLimit: 0.8,
         });
         const letter: Letter = { mesh, body, home, index: n, shade, yMin: -p.size.y / 2, yMax: p.size.y / 2 };
-        paintLetter(letter);
+        paint(letter);
         letters.push(letter);
         n++;
       }
@@ -515,9 +518,11 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   // ------------------------------------------------------------------- balls
   const balls: Ball[] = [];
   const ballGeo = new THREE.SphereGeometry(0.5, 40, 24);
+  let ballCount = Math.floor(Math.random() * 5);
 
   function removeBall(ball: Ball) {
     scene.remove(ball.mesh);
+    ball.mesh.geometry.dispose();
     ball.mesh.material.dispose();
     world.removeBody(ball.body);
   }
@@ -525,17 +530,12 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   function dropBall() {
     if (!letters.length) return;
     const target = letters[Math.floor(Math.random() * letters.length)];
-    const mesh = new THREE.Mesh(
-      ballGeo,
-      new THREE.MeshPhysicalMaterial({
-        color: look().ball,
-        roughness: 0.16,
-        metalness: 0.1,
-        clearcoat: 1,
-        clearcoatRoughness: 0.06,
-      }),
-    );
+    const material = letterMaterial();
+    material.transparent = false;
+    material.opacity = 1;
+    const mesh = new THREE.Mesh(ballGeo.clone(), material);
     mesh.castShadow = true;
+    mesh.receiveShadow = true;
     scene.add(mesh);
     const body = new CANNON.Body({
       mass: 5,
@@ -550,7 +550,9 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     });
     body.angularVelocity.set(Math.random() - 0.5, 0, Math.random() - 0.5);
     world.addBody(body);
-    balls.push({ mesh, body });
+    const ball: Ball = { mesh, body, index: ballCount++, shade: 0, yMin: -0.5, yMax: 0.5 };
+    paint(ball);
+    balls.push(ball);
     while (balls.length > MAX_BALLS) removeBall(balls.shift()!);
   }
 
@@ -660,11 +662,11 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
       pusherBody.position.set(0, -30, 0);
     }
     pusherVis += ((want ? 1 : 0) - pusherVis) * Math.min(1, dt * 10);
-    pusher.visible = pusherVis > 0.01;
-    pusher.material.opacity = pusherVis * 0.92;
-    pusher.castShadow = pusherVis > 0.5;
-    pusher.scale.setScalar(0.4 + 0.6 * pusherVis);
-    if (pusherOn) pusher.position.set(pusherBody.position.x, pusherBody.position.y, pusherBody.position.z);
+    pusherMesh.visible = pusherVis > 0.01;
+    pusherMesh.material.opacity = pusherVis;
+    pusherMesh.castShadow = pusherVis > 0.5;
+    pusherMesh.scale.setScalar(0.4 + 0.6 * pusherVis);
+    if (pusherOn) pusherMesh.position.set(pusherBody.position.x, pusherBody.position.y, pusherBody.position.z);
   }
 
   // ------------------------------------------------------------------ phases
@@ -790,9 +792,10 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     key.intensity = lk.key;
     rim.intensity = lk.rim;
     rim.color.set(lk.rimColor);
-    pusher.material.color.set(lk.pusher);
-    for (const l of letters) paintLetter(l);
-    for (const b of balls) b.mesh.material.color.set(lk.ball);
+    pusher.index = lk.pusher;
+    paint(pusher);
+    for (const l of letters) paint(l);
+    for (const b of balls) paint(b);
     pMat.uniforms.uSize.value = lk.pointSize;
     pMat.blending = lk.additive ? THREE.AdditiveBlending : THREE.NormalBlending;
     pMat.needsUpdate = true;

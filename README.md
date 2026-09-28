@@ -14,7 +14,7 @@ Everything you normally edit lives in `src/data/`:
 
 | What | Where |
 | --- | --- |
-| Bio, position, research interests, internship notice | `src/data/about.md` |
+| Bio, position, research interests, optional notice | `src/data/about.md` |
 | Publications | `src/data/papers.bib` — same fields as al-folio (`selected`, `preview`, `html`, `pdf`, `code`, `abbr`, …) |
 | News | `src/data/news/*.md` — one file per item, with a `date` |
 | CV | `src/data/cv.yml` (al-folio format) and `public/assets/pdf/visioncair_cv.pdf` |

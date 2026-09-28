@@ -6,6 +6,7 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import PaletteLab from '../components/PaletteLab.astro';
+import { PALETTES } from '../scripts/hero/palettes';
 import { site } from '../site.config';
 
 interface Props {
@@ -58,10 +59,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     </script>
     {
       import.meta.env.DEV && (
-        <script is:inline>
+        <script is:inline define:vars={{ names: Object.keys(PALETTES) }}>
           try {
             var p = localStorage.getItem('palette-lab');
-            if (p) document.documentElement.dataset.palette = p;
+            if (names.indexOf(p) !== -1) document.documentElement.dataset.palette = p;
           } catch (e) {}
         </script>
       )

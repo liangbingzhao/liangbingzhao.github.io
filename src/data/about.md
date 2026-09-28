@@ -11,10 +11,10 @@ interests:
   - title: Unified Models
     description: Developing models that bridge generative and understanding tasks, with an emphasis on leveraging understanding capabilities to enhance generative performance.
 
-# Highlighted call-out under the bio; leave empty to hide it.
-notice: I am actively looking for a research internship in Summer 2026. Please feel free to reach out if you are hiring!
-# Short version shown as a pill in the hero; leave empty to hide it.
-notice_short: Open to research internships · Summer 2026
+# Optional highlighted call-out under the bio; empty = hidden.
+notice:
+# Optional short version shown as a pill in the hero; empty = hidden.
+notice_short:
 ---
 
 Hi, I am **Liangbing Zhao**. You can also call me Liam. I am currently a **first-year PhD student** at King Abdullah University of Science and Technology (KAUST), where I also earned my Master's degree. I am privileged to be advised by Prof. [Mohamed Elhoseiny](https://www.mohamed-elhoseiny.com/).
