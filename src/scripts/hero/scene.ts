@@ -27,8 +27,8 @@ interface Letter {
   mesh: THREE.Mesh<TextGeometry, THREE.MeshPhysicalMaterial>;
   body: CANNON.Body;
   home: THREE.Vector3;
-  /** Position along the name, 0..1, used for the colour gradient. */
-  t: number;
+  /** Small per-letter lightness offset in [-1, 1], so the letters read as hand-made. */
+  shade: number;
 }
 
 interface Ball {
@@ -52,39 +52,56 @@ const PUSHER_RADIUS = 0.42;
 const PUSH_HEIGHT = 0.42;
 const PUSH_MAX_SPEED = 16;
 
-const PALETTE: Record<ThemeName, string[]> = {
-  light: ['#ff7a4d', '#f2557f', '#b15ee6', '#6246ea'],
-  dark: ['#ffb86b', '#ff7eb6', '#a78bfa', '#5eead4'],
-};
-
+// Monochrome letters — ink on paper by day, pearl at night — with a faint thin-film
+// sheen on the bevels. A small share of the particles carries the site accent.
 const LOOK = {
   light: {
-    env: 0.9,
-    hemi: 0.55,
-    ground: 0xd9c7ae,
-    key: 2.4,
+    env: 1,
+    hemi: 0.5,
+    ground: 0xd9cfbf,
+    key: 2.3,
     rim: 0,
-    shadow: 0.17,
-    roughness: 0.4,
-    clearcoat: 0.45,
+    rimColor: 0xffffff,
+    shadow: 0.2,
+    letter: '#2c2e34',
+    roughness: 0.36,
+    clearcoat: 0.7,
+    coatRoughness: 0.22,
+    iridescence: 0.2,
+    letterEnv: 0.9,
+    particle: '#2b2d33',
+    accent: '#5b3fe0',
+    ball: '#fbfaf6',
     additive: false,
-    pointSize: 0.036,
+    pointSize: 0.034,
     pusher: '#5b3fe0',
   },
   dark: {
-    env: 0.45,
-    hemi: 0.22,
-    ground: 0x1a1530,
-    key: 1.5,
-    rim: 26,
-    shadow: 0.62,
-    roughness: 0.32,
-    clearcoat: 0.7,
+    env: 0.55,
+    hemi: 0.3,
+    ground: 0x2a2d36,
+    key: 1.6,
+    rim: 12,
+    rimColor: 0xc9ccff,
+    shadow: 0.45,
+    letter: '#e9eaf0',
+    roughness: 0.26,
+    clearcoat: 1,
+    coatRoughness: 0.15,
+    iridescence: 0.6,
+    letterEnv: 1,
+    // Dimmed because additive blending brightens wherever particles overlap.
+    particle: '#838897',
+    accent: '#a595ff',
+    ball: '#26282e',
     additive: true,
-    pointSize: 0.032,
+    pointSize: 0.03,
     pusher: '#a595ff',
   },
 } satisfies Record<ThemeName, unknown>;
+
+const ACCENT_SHARE = 0.12;
+const SHADE_JITTER = 0.08;
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeIn = (t: number) => t * t * t;
@@ -104,10 +121,26 @@ function currentTheme(): ThemeName {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 }
 
-function paletteColor(stops: string[], t: number, out = new THREE.Color()): THREE.Color {
-  const x = clamp01(t) * (stops.length - 1);
-  const i = Math.min(stops.length - 2, Math.floor(x));
-  return out.set(stops[i]).lerp(new THREE.Color(stops[i + 1]), x - i);
+// Relative (not additive) so very dark and very light letters vary by the same amount.
+function letterColor(theme: ThemeName, shade: number, out = new THREE.Color()): THREE.Color {
+  return out.set(LOOK[theme].letter).multiplyScalar(1 + shade * SHADE_JITTER);
+}
+
+function letterMaterial(theme: ThemeName, shade: number): THREE.MeshPhysicalMaterial {
+  const look = LOOK[theme];
+  return new THREE.MeshPhysicalMaterial({
+    color: letterColor(theme, shade),
+    roughness: look.roughness,
+    metalness: 0,
+    clearcoat: look.clearcoat,
+    clearcoatRoughness: look.coatRoughness,
+    envMapIntensity: look.letterEnv,
+    iridescence: look.iridescence,
+    iridescenceIOR: 1.3,
+    iridescenceThicknessRange: [120, 420],
+    transparent: true,
+    opacity: 0,
+  });
 }
 
 function surfaceArea(geo: THREE.BufferGeometry): number {
@@ -206,7 +239,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   key.shadow.camera.updateProjectionMatrix();
   scene.add(key);
 
-  const rim = new THREE.PointLight(0xa78bfa, LOOK[theme].rim, 30, 1.6);
+  const rim = new THREE.PointLight(LOOK[theme].rimColor, LOOK[theme].rim, 30, 1.6);
   rim.position.set(0, 3.5, -5);
   scene.add(rim);
 
@@ -267,7 +300,6 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     }
     letters = [];
     const zs = rowsOfText.map((_, i) => (i - (rowsOfText.length - 1) / 2) * ROW_GAP);
-    const total = rowsOfText.join('').replace(/ /g, '').length;
     let width = 0;
     let n = 0;
     rowsOfText.forEach((row, r) => {
@@ -299,20 +331,9 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
       const rowWidth = pen - TRACKING;
       width = Math.max(width, rowWidth);
       for (const p of placed) {
-        const t = total > 1 ? n / (total - 1) : 0;
+        const shade = Math.sin(n * 91.7 + 1.3);
         const home = new THREE.Vector3(p.x - rowWidth / 2, p.size.y / 2, zs[r]);
-        const mesh = new THREE.Mesh(
-          p.geo,
-          new THREE.MeshPhysicalMaterial({
-            color: paletteColor(PALETTE[theme], t),
-            roughness: LOOK[theme].roughness,
-            metalness: 0,
-            clearcoat: LOOK[theme].clearcoat,
-            clearcoatRoughness: 0.35,
-            transparent: true,
-            opacity: 0,
-          }),
-        );
+        const mesh = new THREE.Mesh(p.geo, letterMaterial(theme, shade));
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         mesh.position.copy(home);
@@ -328,7 +349,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
           sleepSpeedLimit: 0.12,
           sleepTimeLimit: 0.8,
         });
-        letters.push({ mesh, body, home, t });
+        letters.push({ mesh, body, home, shade });
         n++;
       }
     });
@@ -406,6 +427,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
   let points: THREE.Points | null = null;
   let local = new Float32Array(0);
   let owner = new Uint16Array(0);
+  let accentMask = new Uint8Array(0);
   let homeWorld = new Float32Array(0);
   let noise = new Float32Array(0);
 
@@ -421,6 +443,7 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     const count = counts.reduce((s, c) => s + c, 0);
     local = new Float32Array(count * 3);
     owner = new Uint16Array(count);
+    accentMask = new Uint8Array(count).map(() => (Math.random() < ACCENT_SHARE ? 1 : 0));
     homeWorld = new Float32Array(count * 3);
     noise = new Float32Array(count * 3);
     const tmp = new THREE.Vector3();
@@ -452,10 +475,11 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     if (!points) return;
     const attr = points.geometry.getAttribute('aColor') as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
-    const letterColors = letters.map((l) => paletteColor(PALETTE[theme], l.t));
+    const base = new THREE.Color(LOOK[theme].particle);
+    const accent = new THREE.Color(LOOK[theme].accent);
     const c = new THREE.Color();
     for (let i = 0; i < owner.length; i++) {
-      c.copy(letterColors[owner[i]]).multiplyScalar(0.9 + Math.random() * 0.2);
+      c.copy(accentMask[i] ? accent : base).multiplyScalar(0.88 + Math.random() * 0.24);
       arr[i * 3] = c.r;
       arr[i * 3 + 1] = c.g;
       arr[i * 3 + 2] = c.b;
@@ -509,7 +533,13 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     const target = letters[Math.floor(Math.random() * letters.length)];
     const mesh = new THREE.Mesh(
       ballGeo,
-      new THREE.MeshPhysicalMaterial({ color: '#17171d', roughness: 0.16, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.06 }),
+      new THREE.MeshPhysicalMaterial({
+        color: LOOK[theme].ball,
+        roughness: 0.16,
+        metalness: 0.1,
+        clearcoat: 1,
+        clearcoatRoughness: 0.06,
+      }),
     );
     mesh.castShadow = true;
     scene.add(mesh);
@@ -763,12 +793,18 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
     hemi.groundColor.set(look.ground);
     key.intensity = look.key;
     rim.intensity = look.rim;
+    rim.color.set(look.rimColor);
     pusher.material.color.set(look.pusher);
     for (const l of letters) {
-      paletteColor(PALETTE[next], l.t, l.mesh.material.color);
-      l.mesh.material.roughness = look.roughness;
-      l.mesh.material.clearcoat = look.clearcoat;
+      const m = l.mesh.material;
+      letterColor(next, l.shade, m.color);
+      m.roughness = look.roughness;
+      m.clearcoat = look.clearcoat;
+      m.clearcoatRoughness = look.coatRoughness;
+      m.envMapIntensity = look.letterEnv;
+      m.iridescence = look.iridescence;
     }
+    for (const b of balls) b.mesh.material.color.set(look.ball);
     pMat.uniforms.uSize.value = look.pointSize;
     pMat.blending = look.additive ? THREE.AdditiveBlending : THREE.NormalBlending;
     pMat.needsUpdate = true;
@@ -885,6 +921,12 @@ export function createHero(stage: HTMLElement, opts: HeroOptions): void {
           return { phase, status: statusText };
         },
         regenerate: () => phase === 'solid' && enter('noising'),
+        tune(patch: Partial<(typeof LOOK)[ThemeName]>) {
+          Object.assign(LOOK[theme], patch);
+          applyTheme(theme);
+          renderer.render(scene, camera);
+          return LOOK[theme];
+        },
         drop: () => phase === 'solid' && dropBall(),
       },
     });
