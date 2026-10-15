@@ -6,10 +6,10 @@ email: zhaolbben@gmail.com
 photo: prof_pic.jpg # file in src/assets/
 
 interests:
-  - title: Generative Models
-    description: Advancing and applying generative models, such as diffusion models, flow matching, and autoregressive models, with a focus on improving their architectures and exploring innovative applications.
-  - title: Unified Models
-    description: Developing models that bridge generative and understanding tasks, with an emphasis on leveraging understanding capabilities to enhance generative performance.
+  - title: Controllable Generation
+    description: Developing generative models that enable fine-grained control over visual generation and editing through structured guidance, feedback-driven refinement, and physical priors.
+  - title: World Models
+    description: Building world models that learn physical dynamics through perception, interaction, and feedback, enabling prediction and planning in real-world environments.
 
 # Optional highlighted call-out under the bio; empty = hidden.
 notice:

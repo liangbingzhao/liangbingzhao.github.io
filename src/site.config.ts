@@ -9,7 +9,7 @@ export const site = {
   // Used to highlight your name in author lists.
   self: { first: 'Liangbing', last: 'Zhao' },
   description:
-    'Liangbing (Liam) Zhao — PhD student at KAUST working on generative models and unified models.',
+    'Liangbing (Liam) Zhao — PhD student at KAUST working on controllable generation and world models.',
   url: 'https://liangbingzhao.github.io',
   email: 'zhaolbben@gmail.com',
   cvPdf: '/assets/pdf/visioncair_cv.pdf',

@@ -57,9 +57,11 @@
 - title: Academic Interests
   type: nested_list
   contents:
-    - title: Generative Models.
-      items: 
-        - Design the next generation of generative models based on DDPM, GAN, etc.
-        - Devise algorithms for 2D/3D synthesis and solve 2D/3D generation editing problems.
+    - title: Controllable Generation
+      items:
+        - Developing generative models that enable fine-grained control over visual generation and editing through structured guidance, feedback-driven refinement, and physical priors.
+    - title: World Models
+      items:
+        - Building world models that learn physical dynamics through perception, interaction, and feedback, enabling prediction and planning in real-world environments.
 
 
