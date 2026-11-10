@@ -1,60 +1,7 @@
-- title: General Information
-  type: map
-  contents:
-    - name: Full Name
-      value: Liangbing Zhao
-    - name: Languages
-      value: Chinese, English
+# CV page content (same structure as al-folio's _data/cv.yml).
+# Section types: map, time_table, nested_list, list.
 
-- title: Education
-  type: time_table
-  contents:
-    - title: B.S.
-      institution: Beihang University
-      year: 2019
-      description:
-        - Supervised by Professor Si Liu. 
-        - GPA 3.78/4.0
-        - title: Core Courses
-          contents:
-            - Data Structures[C++] (97/100), Python Programming (95/100)
-            - Mathematical Analysis I (93/100), Linear Algebra (94/100), Mathematical Analysis II (99/100), Discrete Mathematics II (96/100)
-            - Computer Organization (91/100), Operating Systems (91/100), Object-Oriented Programming (91/100)
-    # - title: Federal teaching diploma
-    #   institution: Eidgenössische Technische Hochschule, Zurich, Switzerland
-    #   year: 1900
-    #   description:
-    #     - Description 1.
-    #     - Description 2.
-
-- title: Research Experience
-  type: time_table
-  contents:
-    - title: ToddlerDiffusion——Flash Interpretable Controllable Diffusion Model
-      institution: KAUST
-      year: 2023 - 2023
-      description:
-        - Introduced an inherently interpretable and controllable diffusion model that systematically generates a chain of interpretable stages, generating sketches, palettes, and finally RGB images.
-        - Leveraged bridge architecture to reduce training and sampling steps to 10-20, but getting the same quality results as previous state-of-the-art methods.
-        - Under review for CVPR2024.
-
-    - title: Cross-Attention and Seamless Replacement of Latent Prompts for High-Definition Image-Driven Video Editing
-      institution: Meitu Inc.
-      year: 2022-2023
-      description:
-        - Introduced a novel image-driven video editing task to generate customized video from an input image.
-        - Proposed a LIVE(Latent prompt-based Image-driven Video Editing)framework to deal with customized video editing task. Devised a training and inference pipeline specific to the video editing task maintaining cross-frame consistency while ensuring that the new object is coherent with the sequence’s motion.
-        - Accepted by Electronics.
-
-- title: Honors and Awards
-  type: time_table
-  contents:
-    - year: 2020
-      items: 
-        - Special Prize for Learning Merit Scholarship
-        - Beihang University Excellent Student
-
-- title: Academic Interests
+- title: Research Interests
   type: nested_list
   contents:
     - title: Controllable Generation
@@ -64,4 +11,63 @@
       items:
         - Building world models that learn physical dynamics through perception, interaction, and feedback, enabling prediction and planning in real-world environments.
 
+- title: Education
+  type: time_table
+  contents:
+    - title: M.Sc., Computer Science (M.S./Ph.D. Program)
+      institution: King Abdullah University of Science and Technology, Saudi Arabia
+      year: Aug. 2024 – Dec. 2025
+      description:
+        - Supervised by Prof. Mohamed Elhoseiny.
+        - "GPA: 3.71/4.0"
+        - "Thesis: Toward Reflective and Self-Improving Generative Models"
+    - title: B.S., Computer Science and Technology
+      institution: Beihang University, China
+      year: Sept. 2019 – Jun. 2024
+      description:
+        - Supervised by Prof. Si Liu.
 
+- title: Experience
+  type: time_table
+  contents:
+    - title: Visiting Research Student
+      institution: KAUST, Saudi Arabia — Prof. Mohamed Elhoseiny's group
+      year: Jul. 2023 – Mar. 2024
+      description:
+        - Structured image generation with diffusion bridge.
+    - title: Computer Vision Research Engineer
+      institution: Meitu, China — MT Lab, with Dr. Xuecheng Nie
+      year: Jul. 2022 – May 2023
+      description:
+        - Video generation with hierarchical diffusion model.
+
+- title: Publications
+  type: list
+  contents:
+    - "Liangbing Zhao, L. Zhuo, S. Paul, H. Li, and M. Elhoseiny, “From statics to dynamics: Physics-aware image editing with latent transition priors,” ICML 2026."
+    - "S. Wang*, J. Zhao*, T. Pu*, Liangbing Zhao*, X. Guo, Y. Cheng, C. Li, W. Ma, C. Tang, Z. Xu, et al., “Ultrafast visual perception beyond human capabilities enabled by motion analysis using synaptic transistors,” Nature Communications 2026."
+    - "L. Zhuo*, Liangbing Zhao*, S. Paul, Y. Liao, R. Zhang, Y. Xin, P. Gao, M. Elhoseiny, and H. Li, “From reflection to perfection: Scaling inference-time optimization for text-to-image diffusion models via reflection tuning,” ICCV 2025."
+    - "Z. Yang, J. Chen, D. Xu, J. Fei, X. Shen, Liangbing Zhao, C.-M. Feng, and M. Elhoseiny, “Wikiautogen: Towards multi-modal wikipedia-style article generation,” ICCV 2025."
+    - "E. M. Bakr, Liangbing Zhao, V. T. Hu, M. Cord, P. Perez, and M. Elhoseiny, “Toddlerdiffusion: Interactive structured image generation with cascaded schrödinger bridge,” ICLR 2025."
+
+- title: Skills
+  type: map
+  contents:
+    - name: Languages
+      value: Chinese, English (CET-4, CET-6, TOEFL 103)
+    - name: Coding
+      value: C++, Python, Java, LaTeX, Git, PyTorch
+
+- title: Awards
+  type: time_table
+  contents:
+    - year: 2024 – present
+      items:
+        - KAUST Graduate Scholarship
+    - year: 2022
+      items:
+        - Learning Merit Scholarship
+    - year: 2020
+      items:
+        - Beihang University Excellent Student
+        - Special Prize for Learning Merit Scholarship
